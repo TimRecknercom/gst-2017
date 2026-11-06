@@ -48,6 +48,9 @@ async function shiftedRoute() {
       ...d,
       arrival: shift(d.arrival),
       departure: shift(d.departure),
+      // The 2018 app expects a Panoramio photo list (a retired Google service);
+      // an empty list keeps its city-photo panel from crashing.
+      details: d.details ? { panoramio: [], ...d.details } : d.details,
     })),
     stream: (data.stream || []).map((s) => ({ ...s, timestamp: shift(s.timestamp) })),
   };
@@ -67,13 +70,19 @@ export default async (req, context) => {
     }
   }
 
+  // Preview mode (?preview=tracker on the page) sends its own simulated time,
+  // limited to the 2018 Christmas Eve flight window.
+  const requested = Number(new URL(req.url).searchParams.get("now"));
+  const previewNow =
+    requested >= TAKEOFF_2018 - 86400000 && requested <= TAKEOFF_2018 + 2 * 86400000 ? requested : null;
+
   const geo = context.geo || {};
   const info = {
     status: "OK",
-    now: simulatedNow(),
+    now: previewNow ?? simulatedNow(),
     timeOffset: 0,
     refresh: 60000,
-    route: "/.netlify/functions/santa-api?op=route&v=1",
+    route: "/.netlify/functions/santa-api?op=route&v=2",
   };
   if (isFinite(geo.latitude) && isFinite(geo.longitude)) {
     info.location = geo.latitude + "," + geo.longitude;

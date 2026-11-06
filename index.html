@@ -6,29 +6,42 @@
         // Save the original Date object
         const OriginalDate = Date;
 
-        // Create a new Date class that behaves like the original, but modifies the year
+        // Preview mode: add ?preview=tracker to any page URL to jump the clock to
+        // Christmas Eve 2018, shortly after Santa takes off (10:00 UTC, Dec 24).
+        // Optional &hours=N starts N hours into the flight (default 0.5, max 25).
+        // The clock then keeps running in real time from that point.
+        const previewParams = new URLSearchParams(window.location.search);
+        let previewShift = null;
+        if (previewParams.get("preview") === "tracker") {
+            let hours = parseFloat(previewParams.get("hours"));
+            if (!isFinite(hours) || hours < 0 || hours > 25) hours = 0.5;
+            const start = OriginalDate.UTC(2018, 11, 24, 10, 0, 0) + hours * 3600000;
+            previewShift = start - OriginalDate.now();
+        }
+        window.SANTA_PREVIEW = previewShift !== null;
+
+        // Current simulated time in milliseconds
+        function simulatedNow() {
+            if (previewShift !== null) return OriginalDate.now() + previewShift;
+            // Normal mode: the real date and time, but in the year 2018
+            const now = new OriginalDate();
+            now.setFullYear(2018);
+            return now.getTime();
+        }
+
+        // A Date class that behaves like the original, but uses the simulated time
         class MockDate extends OriginalDate {
             constructor(...args) {
-                // If a date is created with parameters (e.g., new Date('2025-01-01')),
-                // use the original constructor without modification.
+                // Dates created with parameters (e.g. new Date('2025-01-01')) are unchanged
                 if (args.length > 0) {
                     super(...args);
                 } else {
-                    // If the current date is requested (e.g., new Date()),
-                    // get the real date and time...
-                    const now = new OriginalDate();
-                    // ...but set the year to 2018.
-                    now.setFullYear(2018);
-                    // Create the date with the modified year.
-                    super(now);
+                    super(simulatedNow());
                 }
             }
 
-            // Also override the static Date.now() method for consistency
             static now() {
-                const now = new OriginalDate();
-                now.setFullYear(2018);
-                return now.getTime();
+                return simulatedNow();
             }
         }
 
@@ -45,7 +58,9 @@
             XMLHttpRequest.prototype.open = function(method, url) {
                 if (typeof url === "string" && url.indexOf("https://santa-api.appspot.com/info") === 0) {
                     var query = url.split("?")[1];
-                    arguments[1] = "/.netlify/functions/santa-api?op=info" + (query ? "&" + query : "");
+                    arguments[1] = "/.netlify/functions/santa-api?op=info" + (query ? "&" + query : "") +
+                        // In preview mode, tell the data service which simulated time to report
+                        (window.SANTA_PREVIEW ? "&now=" + Date.now() : "");
                 }
                 return open.apply(this, arguments);
             };

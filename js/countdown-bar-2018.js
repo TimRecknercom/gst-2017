@@ -9,7 +9,8 @@
   // Santa took off at 10:00 UTC on 24 December. Date is mocked to 2018 above.
   var TAKEOFF = Date.UTC(2018, 11, 24, 10, 0, 0);
   var LABELS = ['Days', 'Hrs', 'Min', 'Sec'];
-  var CSS = '#cd2018{display:flex;align-items:center;margin:0 8px 0 auto;flex:none;' +
+  var CSS = 'countdown-timer[hidden]{display:none!important}' +
+    '#cd2018{display:flex;align-items:center;margin:0 8px 0 auto;flex:none;' +
     'font-family:Roboto,sans-serif;color:#fff;pointer-events:none}' +
     '#cd2018[hidden]{display:none}' +
     '#cd2018 .u{display:flex;flex-direction:column;align-items:center;min-width:30px;margin-left:10px}' +
