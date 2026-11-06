@@ -1,0 +1,16 @@
+[build]
+  publish = "."
+
+# Open the site straight into the Map Quiz ("mercator") scene
+[[redirects]]
+  from = "/"
+  to = "/mercator.html"
+  status = 302
+  force = true
+
+# Santa Tracker routes scenes by path (e.g. /mercator.html, /village.html).
+# Serve the app shell for any path that isn't a real file so these never 404.
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200

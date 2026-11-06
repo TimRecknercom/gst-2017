@@ -1,34 +1,47 @@
 <!DOCTYPE html>
 <html itemscope="itemscope" itemtype="http://schema.org/WebPage" lang="en">
 <head prefix="og: http://ogp.me/ns# article: http://ogp.me/ns/article#">
-    <!-- SCRIPT TO SIMULATE THE YEAR 2017 -->
+    <!-- SCRIPT TO SIMULATE THE YEAR 2018 -->
     <script>
         // Save the original Date object
         const OriginalDate = Date;
 
-        // Create a new Date class that behaves like the original, but modifies the year
+        // Preview mode: add ?preview=tracker to any page URL to jump the clock to
+        // Christmas Eve 2018, shortly after Santa takes off (10:00 UTC, Dec 24).
+        // Optional &hours=N starts N hours into the flight (default 0.5, max 25).
+        // The clock then keeps running in real time from that point.
+        const previewParams = new URLSearchParams(window.location.search);
+        let previewShift = null;
+        if (previewParams.get("preview") === "tracker") {
+            let hours = parseFloat(previewParams.get("hours"));
+            if (!isFinite(hours) || hours < 0 || hours > 25) hours = 0.5;
+            const start = OriginalDate.UTC(2018, 11, 24, 10, 0, 0) + hours * 3600000;
+            previewShift = start - OriginalDate.now();
+        }
+        window.SANTA_PREVIEW = previewShift !== null;
+
+        // Current simulated time in milliseconds
+        function simulatedNow() {
+            if (previewShift !== null) return OriginalDate.now() + previewShift;
+            // Normal mode: the real date and time, but in the year 2018
+            const now = new OriginalDate();
+            now.setFullYear(2018);
+            return now.getTime();
+        }
+
+        // A Date class that behaves like the original, but uses the simulated time
         class MockDate extends OriginalDate {
             constructor(...args) {
-                // If a date is created with parameters (e.g., new Date('2025-01-01')),
-                // use the original constructor without modification.
+                // Dates created with parameters (e.g. new Date('2025-01-01')) are unchanged
                 if (args.length > 0) {
                     super(...args);
                 } else {
-                    // If the current date is requested (e.g., new Date()),
-                    // get the real date and time...
-                    const now = new OriginalDate();
-                    // ...but set the year to 2017.
-                    now.setFullYear(2017);
-                    // Create the date with the modified year.
-                    super(now);
+                    super(simulatedNow());
                 }
             }
 
-            // Also override the static Date.now() method for consistency
             static now() {
-                const now = new OriginalDate();
-                now.setFullYear(2017);
-                return now.getTime();
+                return simulatedNow();
             }
         }
 
@@ -37,10 +50,27 @@
     </script>
     <!-- END SIMULATION SCRIPT -->
 
+    <!-- Send the app's live-data requests to this site's own santa-api function,
+         which serves them in the 2018 format on the simulated 2018 clock. -->
+    <script>
+        (function() {
+            var open = XMLHttpRequest.prototype.open;
+            XMLHttpRequest.prototype.open = function(method, url) {
+                if (typeof url === "string" && url.indexOf("https://santa-api.appspot.com/info") === 0) {
+                    var query = url.split("?")[1];
+                    arguments[1] = "/.netlify/functions/santa-api?op=info" + (query ? "&" + query : "") +
+                        // In preview mode, tell the data service which simulated time to report
+                        (window.SANTA_PREVIEW ? "&now=" + Date.now() : "");
+                }
+                return open.apply(this, arguments);
+            };
+        })();
+    </script>
+
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
     <meta name="viewport" content="width=device-width,minimum-scale=1,initial-scale=1,maximum-scale=1,user-scalable=no">
-    <title>Santa's Village — Google Santa Tracker</title>
+    <title>Google Santa Tracker</title>
     <meta property="og:title" itemprop="name" content="Santa's Village — Google Santa Tracker">
     <meta property="og:type" content="website">
     <meta property="og:image" itemprop="image" content="https://santatracker.google.com/images/og.png">
@@ -53,7 +83,7 @@
     <meta name="twitter:description" content="Follow Santa Claus around the world with Google Santa Tracker on Google Maps.">
     <meta name="twitter:image" content="https://santatracker.google.com/images/og.png">
     <link href="//fonts.googleapis.com/css?family=Roboto:100,300,400,500,600,700,800|Lobster" rel="stylesheet">
-    <link href="//maps.gstatic.com/mapfiles/santatracker/v201712120845/sass/santatracker.css" rel="stylesheet">
+    <link href="//maps.gstatic.com/mapfiles/santatracker/v201812132012/sass/santatracker.css" rel="stylesheet">
     <meta name="theme-color" content="#00c6ed">
     <!-- non-standard meta tags -->
     <meta name="apple-mobile-web-app-capable" content="yes">
@@ -84,7 +114,7 @@
     <script>
         window.customElements || document.write("<!--");
     </script>
-    <script src="//maps.gstatic.com/mapfiles/santatracker/v201712120845/components/webcomponentsjs/custom-elements-es5-adapter.js"></script>
+    <script src="//maps.gstatic.com/mapfiles/santatracker/v201812132012/components/webcomponentsjs/custom-elements-es5-adapter.js"></script>
     <!--!do not remove-->
     <script>
         !function() {
@@ -161,9 +191,9 @@
             };
         }();
     </script>
-    <link href="//maps.gstatic.com/mapfiles/santatracker/v201712120845/elements/elements_en.html" rel="import" crossorigin="">
+    <link href="//maps.gstatic.com/mapfiles/santatracker/v201812132012/elements/elements_en.html" rel="import" crossorigin="">
 </head>
-<body class="scrollock" data-static="//maps.gstatic.com/mapfiles/santatracker/v201712120845/" data-version="v201712120845" unresolved="">
+<body class="scrollock" data-static="//maps.gstatic.com/mapfiles/santatracker/v201812132012/" data-version="v201812132012" unresolved="">
     <santa-app id="santaApp" routing=""></santa-app>
     <santa-countdown aria-atomic="false" aria-live="assertive" aria-relevant="additions" hidden="" role="timer"></santa-countdown>
     <santa-notice></santa-notice>
@@ -258,6 +288,10 @@
         }();
     </script>
     <!-- FIX: Moved this script to the end of the body to ensure Polymer is defined before being used. -->
+    <!-- 2018-style countdown bar -->
+    <script src="/js/countdown-bar-2018.js"></script>
+    <!-- Unlock all village games -->
+    <script src="/js/unlock-all-games.js"></script>
     <script>
         Polymer.setPassiveTouchGestures && Polymer.setPassiveTouchGestures(true);
     </script>
