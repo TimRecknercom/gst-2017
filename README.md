@@ -1,39 +1,15 @@
-What you discovered
+# Google Santa Tracker (2017 Archive & Preservation)
 
-From your screenshots, here’s what actually happened:
+An independent historical preservation and playable archive of the 2017 Google Santa Tracker web experience.
 
-When you type this:
+## Provenance & Sourcing
+This project is an independent archival effort. All code and asset files are derived from:
+- **Google's Official Open-Source Repositories:** Specifically the official `Elves` release tag from [`google/santa-tracker-web`]https://github.com/google/santa-tracker-web/releases/tag/2016).
+- **The Internet Archive:** Historical web snapshots preserved via [Wayback Machine (archive.org)](https://archive.org).
 
-https://speechless-parrot.github.io/gst-2017/village.html
+## Legal & Licensing Notice
+- **Intellectual Property:** All original Santa Tracker characters, branding, audio, and game designs are the exclusive property of **Google LLC**.
+- **Code License:** Google released the Santa Tracker web client under the **Apache License, Version 2.0**.
+- **Media Assets:** Asset files were released by Google under the **Creative Commons Attribution 4.0 International (CC BY 4.0)** license.
 
-You sometimes get a 404 error.
-But when you remove village.html and load only:
-
-https://speechless-parrot.github.io/gst-2017/
-
-The website loads correctly.
-After the base folder loads, the site redirects properly and the village loads without error.
-
-This means the direct village.html file is not always linked correctly, but the project root folder is. Loading the root lets GitHub Pages load the correct path and fix the missing file issue.
-
-Here is a clear explanation you can post in your server
-
-You can copy this and paste it into Discord:
-
-404 Error Fix for the GSTG Village Page
-
-I figured out what was causing the 404 error with the original Santa Tracker link. When you open the direct page:
-
-https://speechless-parrot.github.io/gst-2017/village.html
-
-GitHub sometimes can’t find that file and gives you a 404 error.
-
-The fix is simple. You have to remove village.html and load the main folder instead:
-
-https://speechless-parrot.github.io/gst-2017/
-
-Once the main project loads, the village page works normally without giving an error. So if the village page breaks, just open the root folder link.
-
-I also made a working version on my site that loads every time:
-
-https://sites.google.com/timrecknercomnews.com/santatracker/mobile
+*This repository is a non-profit educational and preservation project. No community member or third party holds proprietary ownership over Google LLC's open-source codebase.*
